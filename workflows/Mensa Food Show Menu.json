@@ -1,0 +1,1265 @@
+{
+  "name": "Mensa Food Show Menu",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.url.replaceAll('%mensa%', $json.mensa).replaceAll('%lang%', $json.lang == 'de' ? '' : `_${$json.lang}`) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "xml"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2832,
+        352
+      ],
+      "id": "65b7b49d-464b-4af4-ae81-56e831821d26",
+      "name": "HTTP Request",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b364e67a-8fcb-492e-898d-74dbf6c0dfab",
+              "name": "url",
+              "value": "http://www.max-manager.de/daten-extern/seezeit/xml/%mensa%/speiseplan%lang%.xml",
+              "type": "string"
+            },
+            {
+              "id": "f616bf8b-5037-4964-b324-bdf4f46868e3",
+              "name": "lang",
+              "value": "en",
+              "type": "string"
+            },
+            {
+              "id": "4b9a00e4-9967-4622-8e86-c4641cd04619",
+              "name": "mensa",
+              "value": "mensa_giessberg",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3104,
+        352
+      ],
+      "id": "c9f3ecd3-f67f-4f5c-b5df-cbb59c0b7388",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "xml",
+        "options": {
+          "normalize": true,
+          "normalizeTags": true,
+          "trim": true
+        }
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        -2432,
+        240
+      ],
+      "id": "e477e55c-51a8-4b4a-b64a-d7bdea73d75d",
+      "name": "XML",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "speiseplan.tag",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2192,
+        224
+      ],
+      "id": "da66e7ef-910b-4ba1-af68-681b335a8b72",
+      "name": "Split Out",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const dateOffset = (24*60*60) / 2; // half a day\n  const date = new Date((parseInt(item.json.timestamp) + dateOffset) * 1000).toISOString().split('T')[0];\n  const now = new Date(Date.now()).toISOString().split('T')[0]\n  \n  item.json.date = date;\n  item.json.isToday = date == now;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1952,
+        208
+      ],
+      "id": "186dd6c1-e2f2-49ae-a2e5-d95f5a21ae17",
+      "name": "Code in JavaScript",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0a5c40d7-89ef-4b6d-84d9-4d957172381c",
+              "leftValue": "={{ $json.isToday }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -992,
+        272
+      ],
+      "id": "94c312f7-faac-4bad-a67e-495c4808dbdd",
+      "name": "Filter",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const alerts = new Set(\n    item.json.data\n    .filter(it => it.alerts)\n    .map(it => it.alerts)\n    .flat()\n    .sort()\n  );\n\n  if(alerts) {\n    item.json.text += `\\n\\n---`;\n    for(const alert of alerts) {\n      item.json.text += `\\n${alert}`;\n    }\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        304
+      ],
+      "id": "675d70d3-10e9-4967-8b82-c94c7a63a1a1",
+      "name": "Personal Alerts",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8cf5794f-89d7-4acb-a94e-05d48619df6f",
+              "leftValue": "={{ $json.item }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "05c8aa47-1ddd-4aab-a206-0050a516765d",
+              "leftValue": "={{ $json.item }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1424,
+        176
+      ],
+      "id": "d5e95788-fe84-4448-8860-a3d6d6da4710",
+      "name": "If - Speiseplan empty"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bffab24c-3890-476c-9cd4-479cb57338b0",
+              "name": "text",
+              "value": "**Error:** No menu items found for today's menu!",
+              "type": "string"
+            },
+            {
+              "id": "6b6463aa-d0dc-4d5d-a2cf-a40a68109881",
+              "name": "response_type",
+              "value": "ephemeral",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        80
+      ],
+      "id": "e6b1e9ff-46de-414a-bcf5-77c372a875b5",
+      "name": "Error - no menu items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bffab24c-3890-476c-9cd4-479cb57338b0",
+              "name": "text",
+              "value": "=_An unknown error occurred. Please try again later! (ID: {{ $execution.id }})_",
+              "type": "string"
+            },
+            {
+              "id": "6b6463aa-d0dc-4d5d-a2cf-a40a68109881",
+              "name": "response_type",
+              "value": "ephemeral",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3088,
+        848
+      ],
+      "id": "1dd93f60-a8a5-4ed7-bfb4-f12c4fec5aee",
+      "name": "Error - generic"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d6267a50-e4f9-4455-89f2-bcd0c35be847",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "898fe0b5-e041-40d0-9474-c887c037f227",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -688,
+        256
+      ],
+      "id": "a8cd663a-8ca0-4510-b118-53e04f39b20c",
+      "name": "If - has no value"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "item",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        448
+      ],
+      "id": "5fe584e1-7124-4f10-a0a2-a32716841da0",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd21f244-4ba2-4b4f-962c-689b2dfc006d",
+              "name": "category",
+              "value": "={{ ($json?.category ?? '').replaceAll('|', '｜') }}",
+              "type": "string"
+            },
+            {
+              "id": "3d4c3b41-7d58-4a0f-a757-81a117ece7bc",
+              "name": "title",
+              "value": "={{ ($json?.title ?? '').replaceAll('|', '｜') }}",
+              "type": "string"
+            },
+            {
+              "id": "db08bfe3-3fc2-4fbd-8f09-0f6bd9ecf410",
+              "name": "icons",
+              "value": "={{ $json?.icons ?? '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        448
+      ],
+      "id": "61076276-969d-4130-b3b1-ef6ffab407fa",
+      "name": "Extract Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const emojiMap = new Map([\n  ['23', ':star:'],\n  ['24', ':leafy_green:'],\n  ['45', ':pig:'],\n  ['46', ':cow:'],\n  ['47', ':pig:'],\n  ['49', ':chicken:'],\n  ['50', ':fish:'],\n  ['51', ':carrot:'],\n  ['52', ':deer:'],\n]);\n\nfor (const item of $input.all()) {\n  const icons = (item.json?.icons ?? '')\n    .split(',')\n    .map(it => it.trim())\n    .map(it => emojiMap.get(it) ?? it)\n    .join(' ');\n\n  item.json.icons = icons;\n\n  item.json.isVegan = icons.includes(\":leafy_green:\");\n  item.json.isVegetarian = item.json.isVegan || icons.includes(\":carrot:\");\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        448
+      ],
+      "id": "b6be9879-3814-445b-8036-046e6a70e003",
+      "name": "Map Icons"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        448
+      ],
+      "id": "12097c52-a1ae-488b-bb2c-c8d817829955",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "function capitalizeFirstLetter(str) {\n  if (!str) return '';\n\n  var firstCodeUnit = str[0];\n\n  if (firstCodeUnit < '\\uD800' || firstCodeUnit > '\\uDFFF') {\n    return str[0].toUpperCase() + str.slice(1);\n  }\n\n  return str.slice(0, 2).toUpperCase() + str.slice(2);\n}\n\nfor (const item of $input.all()) {\n  item.json.category = capitalizeFirstLetter(item.json?.category ?? 'unknown');\n  item.json.title = capitalizeFirstLetter(item.json?.title ?? 'unknown');\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        448
+      ],
+      "id": "0039e9a5-0a3a-4a8f-808f-eb113038ede5",
+      "name": "Fix Capitalization"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "preferLast"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1600,
+        320
+      ],
+      "id": "98932d84-9ca1-4af8-aaca-03c3a05f9a8a",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const LF = '  \\n';\n\nfor (const item of $input.all()) {\n  const headline = `##### [Today's Menu](https://seezeit.com/essen/speiseplaene/mensa-giessberg/) (${item.json.date})`;\n\n  const thead = '| Category | Description | Tags |';\n  const tdef = '| :--- | :--- | :--- |';\n  const tbody = item.json.data.map(it => {\n    return `| ${it.category} | ${it.title} | ${it.icons} |`;\n  }).join(LF);\n\n  const table = [thead, tdef, tbody].join(LF);\n  \n  item.json.text = [headline, table].join(LF);\n  item.json.response_type = 'in_channel';\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        320
+      ],
+      "id": "3bfb6001-59cb-493d-a699-4dd7d4b7d60e",
+      "name": "Build Mattermost Table",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        32,
+        80
+      ],
+      "id": "60707384-b3b0-4103-89f0-3c9f2778b17d",
+      "name": "Limit"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        3296,
+        848
+      ],
+      "id": "0285b8e2-6ad8-4383-b37e-7e932c586f15",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const it = item.json.item;\n  if(!Array.isArray(it)) {\n    item.json.item = [it];\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1712,
+        192
+      ],
+      "id": "7d9afb23-7535-4721-899d-2dc95888f703",
+      "name": "Fix Item",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -2096,
+        864
+      ],
+      "id": "aa60efe6-4f9c-497a-8725-df81a87dd332",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1552,
+        864
+      ],
+      "id": "c4a0cacf-bd12-4f54-b6ee-2ce86e552305",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -832,
+        864
+      ],
+      "id": "71213465-cddb-4e47-8ee8-db783ae3a06f",
+      "name": "No Operation, do nothing3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        864
+      ],
+      "id": "bdcdf0c0-c7ac-4339-b4a3-660b6022b4bf",
+      "name": "No Operation, do nothing4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  if(!item.json.alerts){\n    item.json.alerts = [];\n  }\n\n  for (const notify of item.json.notifications) {\n    // not in title\n    if(!item.json.title.includes(notify.query)) continue;\n\n    // check diet\n    if(notify.diet == 'vegan' && !item.json.isVegan) continue;\n    if(notify.diet == 'veggie' && !item.json.isVegetarian) continue;\n    \n    item.json.alerts.push(\"@\" + notify.username + \" \" + notify.query);\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        448
+      ],
+      "id": "0982dc2f-6951-403c-9351-ca04d383d5f5",
+      "name": "Process Alerts"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "channel_id"
+            },
+            {
+              "name": "webhook_url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3472,
+        -48
+      ],
+      "id": "6492446e-e18b-4432-af5d-17ac56e796a3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3744,
+        -64
+      ],
+      "id": "97686e1e-54af-4253-950d-9ade1feaf2a1",
+      "name": "Merge"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        3952,
+        -64
+      ],
+      "id": "91c1b8ad-78f8-4305-8c20-3cc7d280f2ee",
+      "name": "Limit2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Mensa_Food_Notifications",
+          "mode": "name"
+        },
+        "matchType": "allConditions",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2880,
+        -368
+      ],
+      "id": "d3de49e8-d27a-48b0-ad56-fb429c138355",
+      "name": "Get row(s)",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "notifications",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -2112,
+        -496
+      ],
+      "id": "2ba493ed-b339-4bf9-aa95-97ca4f8d514e",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        432
+      ],
+      "id": "e7214940-6b27-4bb0-b6fb-b32fd1408207",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "channelId": "={{ $json.channel_id }}",
+        "message": "={{ $json.text }}",
+        "attachments": [
+          {
+            "actions": {
+              "item": [
+                {
+                  "type": "button",
+                  "data_source": "custom",
+                  "options": {},
+                  "name": "🔔 View My Alerts",
+                  "integration": {
+                    "item": {
+                      "url": "={{ $json.webhook_url }}",
+                      "context": {
+                        "property": [
+                          {
+                            "name": "action",
+                            "value": "list_click"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "button",
+                  "data_source": "custom",
+                  "options": {},
+                  "name": "➕ Add New Alert",
+                  "integration": {
+                    "item": {
+                      "url": "={{ $json.webhook_url }}",
+                      "context": {
+                        "property": [
+                          {
+                            "name": "action",
+                            "value": "open_add_dialog"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.mattermost",
+      "typeVersion": 1,
+      "position": [
+        4272,
+        -64
+      ],
+      "id": "1ce1d9fe-0520-451e-908f-51fe44a71523",
+      "name": "Post a message",
+      "credentials": {
+        "mattermostApi": {
+          "id": "7ezEmFfnqQg3Rx2Z",
+          "name": "Mattermost HCI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "operation": "getAll",
+        "additionalFields": {
+          "inChannel": "={{ $json.channel_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.mattermost",
+      "typeVersion": 1,
+      "position": [
+        -2880,
+        -592
+      ],
+      "id": "f93dbea5-a227-440e-9932-f0c086414698",
+      "name": "Get many users",
+      "credentials": {
+        "mattermostApi": {
+          "id": "7ezEmFfnqQg3Rx2Z",
+          "name": "Mattermost HCI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "id",
+              "field2": "user_id"
+            }
+          ]
+        },
+        "joinMode": "enrichInput2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2544,
+        -496
+      ],
+      "id": "e7ad8e8d-1505-4145-84f9-040e261c6d23",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "348ec8d5-2e7b-4700-9ba0-d9fcea3314d7",
+              "leftValue": "={{ $json.username }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -2336,
+        -496
+      ],
+      "id": "43c41ae4-7fd0-4d4c-b4e2-92f4074b2d4f",
+      "name": "Filter1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Fix Item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "If - has no value",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personal Alerts": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Error - generic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - Speiseplan empty": {
+      "main": [
+        [
+          {
+            "node": "Error - no menu items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error - no menu items": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error - generic": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - has no value": {
+      "main": [
+        [
+          {
+            "node": "Error - no menu items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Extract Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Fields": {
+      "main": [
+        [
+          {
+            "node": "Map Icons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Icons": {
+      "main": [
+        [
+          {
+            "node": "Fix Capitalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fix Capitalization": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Build Mattermost Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Mattermost Table": {
+      "main": [
+        [
+          {
+            "node": "Personal Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error - generic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Item": {
+      "main": [
+        [
+          {
+            "node": "If - Speiseplan empty",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing3": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing4": {
+      "main": [
+        [
+          {
+            "node": "Error - generic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Alerts": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Limit2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit2": {
+      "main": [
+        [
+          {
+            "node": "Post a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Process Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post a message": {
+      "main": [
+        []
+      ]
+    },
+    "Get many users": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "4803e2c5-c3ad-4881-935f-fa4746601f1d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33cb51054af562f7b4990b9fc18b714fda1d63cbdd96ac7492c7d73ce16109dc"
+  },
+  "id": "HOvzoU1yryCdCWFbX7sHQ",
+  "tags": []
+}

@@ -1,0 +1,168 @@
+{
+  "name": "Mensa Food Help",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "response_url"
+            },
+            {
+              "name": "webhook_url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        80
+      ],
+      "id": "5ce6b7ab-e64f-418e-9115-6e70ba637b29",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.response_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mattermostApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "response_type",
+              "value": "ephemeral"
+            },
+            {
+              "name": "attachments",
+              "value": "={{ $json.attachments }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1184,
+        64
+      ],
+      "id": "aa57f2b4-5c9e-43e2-b4f0-3d58831706ec",
+      "name": "Send Mattermost Message",
+      "credentials": {
+        "mattermostApi": {
+          "id": "7ezEmFfnqQg3Rx2Z",
+          "name": "Mattermost HCI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1c6573fe-5c37-4b7b-8af8-7513be6a65e9",
+              "leftValue": "={{ $json.response_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        80
+      ],
+      "id": "60e02bf7-cf83-4d3b-aca7-2774480df9f3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.text = \"#### Lunch Command Help\\n\" +\n                      \"Need help with `/lunch`? Here are the available options:\\n\\n\" +\n                      \"| Command | Description | Visibility |\\n\" +\n                      \"| :--- | :--- | :--- |\\n\" +\n                      \"| `/lunch` | Displays today's lunch menu | Public (In Channel) |\\n\" +\n                      \"| `/lunch list` | Lists all your active food notifications | Private (Only You) |\\n\" +\n                      \"| `/lunch sub [diet] [keyword]` | Create a notification. Diet options: `all`, `veggie`, `vegan` | Private (Only You) |\\n\" +\n                      \"| `/lunch unsub [keyword]` | Delete a notification | Private (Only You) |\\n\" +\n                      \"| `/lunch help` | Displays this help menu | Private (Only You) |\\n\\n\" + \n                      \"💡 *Tip: If your keyword has spaces, wrap it in quotes. Example:* `/lunch notify veggie \\\"chili sin carne\\\"`\";\n\n  item.json.attachments = [\n    {\n        text: \"💡 **Quick Actions:** Don't want to type? Click a shortcut below:\",\n        actions: [\n            {\n                id: \"helpactionmenu\",\n                name: \"📋 Show Today's Menu\",\n                type: \"button\",\n                style: \"primary\", // Blue button\n                integration: {\n                    url: item.json.webhook_url, // Your n8n webhook\n                    context: {\n                        action: \"menu_click\"\n                    }\n                }\n            },\n            {\n                id: \"helpactionlist\",\n                name: \"🔔 View My Active Alerts\",\n                type: \"button\",\n                style: \"default\", // Standard button\n                integration: {\n                    url: item.json.webhook_url, // Your n8n webhook\n                    context: {\n                        action: \"list_click\"\n                    }\n                }\n            }\n        ]\n    }\n  ];\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        80
+      ],
+      "id": "e30e77d0-6870-402e-989a-1c905718aa55",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send Mattermost Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Mattermost Message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "4f5ea6bb-efef-45b7-ac82-80bf5e52c3f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33cb51054af562f7b4990b9fc18b714fda1d63cbdd96ac7492c7d73ce16109dc"
+  },
+  "id": "cFx15u-mRM1W9ZBj82hbc",
+  "tags": []
+}

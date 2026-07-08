@@ -1,0 +1,1187 @@
+{
+  "name": "Mensa Food",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a2c42a32-9f4b-4aad-b57c-cf388c1f82d9",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1872,
+        -400
+      ],
+      "id": "7ea9da33-4206-4d27-b776-fe4cc8569636",
+      "name": "Webhook",
+      "webhookId": "a2c42a32-9f4b-4aad-b57c-cf388c1f82d9"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        -400
+      ],
+      "id": "c046b314-ad05-4f6f-89a0-c6fc93e063df",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        -208
+      ],
+      "id": "66acf319-cb58-45a6-be58-b4ff051ed0bb",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n    \"headers\": {\n        \"connection\": \"upgrade, keep-alive\",\n        \"host\": \"***REDACTED-SECRET***\",\n        \"x-real-ip\": \"***REDACTED-SECRET***\",\n        \"x-forwarded-for\": \"***REDACTED-SECRET***\",\n        \"x-forwarded-proto\": \"https\",\n        \"x-forwarded-host\": \"***REDACTED-SECRET***\",\n        \"x-forwarded-port\": \"443\",\n        \"content-length\": \"601\",\n        \"user-agent\": \"Mattermost-Bot/1.1\",\n        \"accept\": \"application/json\",\n        \"accept-encoding\": \"gzip, br\",\n        \"content-type\": \"application/x-www-form-urlencoded\",\n        \"cf-ray\": \"***REDACTED-SECRET***\",\n        \"authorization\": \"***REDACTED-SECRET***\",\n        \"cdn-loop\": \"cloudflare; loops=1\",\n        \"cf-connecting-ip\": \"***REDACTED-SECRET***\",\n        \"cf-ipcountry\": \"DE\",\n        \"cf-visitor\": \"{\\\"scheme\\\":\\\"https\\\"}\"\n    },\n    \"params\": {},\n    \"query\": {},\n    \"body\": {\n        \"channel_id\": \"***REDACTED-SECRET***\",\n        \"channel_name\": \"***REDACTED-SECRET***\",\n        \"command\": \"/lunch\",\n        \"response_url\": \"***REDACTED-SECRET***\",\n        \"team_domain\": \"hci\",\n        \"team_id\": \"***REDACTED-SECRET***\",\n        \"text\": \"notify \\\"french fries\\\"\",\n        \"token\": \"***REDACTED-SECRET***\",\n        \"trigger_id\": \"***REDACTED-SECRET***\",\n        \"user_id\": \"***REDACTED-SECRET***\",\n        \"user_name\": \"***REDACTED-SECRET***\"\n    },\n    \"webhookUrl\": \"***REDACTED-SECRET***\",\n    \"executionMode\": \"production\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1664,
+        -208
+      ],
+      "id": "65d55b76-1429-449e-b817-2ad7fb8fb31a",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "Mensa_Food_Notifications",
+        "columns": {
+          "column": [
+            {
+              "name": "user_id"
+            },
+            {
+              "name": "query"
+            },
+            {
+              "name": "diet"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -944,
+        -768
+      ],
+      "id": "9785d498-1dd4-4000-ae8d-9144e63a6674",
+      "name": "Create a data table",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "168fc442-b8e6-4eba-8e2a-0f2ab2461b4f",
+              "name": "command",
+              "value": "={{ $json.body.text.match(/[^\\s\"]+|\"[^\"]*\"/g).map(it => it.replace(/^\\\\?\"|\\\\?\"$/g, '')) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "selected",
+        "includeFields": "body,webhookUrl",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -608,
+        80
+      ],
+      "id": "1bd82827-46c5-4441-a176-b9d4afbb12b4",
+      "name": "Build Command"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "id": "001868dd-f0c1-4330-a8e0-e21e85f3a7fe"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "show lunch menu"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "34e1fedc-1ba0-40f4-ae4a-f9744ca9c619",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "help"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8135a994-6896-457e-967b-34eedefc66f9",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "sub",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "notify"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "aa9cdb60-3d6a-4a5f-aba1-c1be3243cebb",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "unsub",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "unnotify"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bcdd2ef8-f913-4277-add5-ff5d9e59935c",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "list",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "list"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        80
+      ],
+      "id": "fabca42c-a02e-4cdd-87a7-52b1acee3b14",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5c310f8-1583-48c8-ba14-f3989b541fc6",
+              "name": "action",
+              "value": "={{ $json.command[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "87bcb21b-7018-4f86-ad82-38b63e362da1",
+              "name": "params",
+              "value": "={{ $json.command.slice(1) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        80
+      ],
+      "id": "b40110e0-fce5-4fca-8da3-437449ab8ab2",
+      "name": "Split Command"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "HOvzoU1yryCdCWFbX7sHQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/HOvzoU1yryCdCWFbX7sHQ",
+          "cachedResultName": "Mensa Food Show Menu"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "channel_id": "={{ $json.body.channel_id }}",
+            "webhook_url": "={{ $json.webhookUrl }}"
+          },
+          "matchingColumns": [
+            "response_url"
+          ],
+          "schema": [
+            {
+              "id": "channel_id",
+              "displayName": "channel_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "webhook_url",
+              "displayName": "webhook_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -480
+      ],
+      "id": "4c261bdc-7547-47bf-854c-879464bd6d2a",
+      "name": "Call 'Mensa Food Show Menu'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cFx15u-mRM1W9ZBj82hbc",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/cFx15u-mRM1W9ZBj82hbc",
+          "cachedResultName": "Mensa Food Help"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "response_url": "={{ $json.body.response_url }}",
+            "webhook_url": "={{ $json.webhookUrl }}"
+          },
+          "matchingColumns": [
+            "response_url"
+          ],
+          "schema": [
+            {
+              "id": "response_url",
+              "displayName": "response_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "webhook_url",
+              "displayName": "webhook_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -288
+      ],
+      "id": "62c7cb28-7668-4aff-bf39-2cef166c5773",
+      "name": "Call 'Mensa Food Help'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "LlDwYRHYaSlqrYaG24n8R",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/LlDwYRHYaSlqrYaG24n8R",
+          "cachedResultName": "Mensa Food Notify"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "response_url": "={{ $json.body.response_url }}",
+            "params": "={{ $json.params ?? [] }}",
+            "user_id": "={{ $json.body.user_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "response_url",
+              "displayName": "response_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "params",
+              "displayName": "params",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "ef41d40d-3193-49f7-a303-e45670ae94c5",
+      "name": "Call 'Mensa Food Notify'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "j8fKcobIlaw3eUrb",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/j8fKcobIlaw3eUrb",
+          "cachedResultName": "Mensa Food UnNotify"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "response_url": "={{ $json.body.response_url }}",
+            "params": "={{ $json.params ?? [] }}",
+            "user_id": "={{ $json.body.user_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "response_url",
+              "displayName": "response_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "params",
+              "displayName": "params",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        48
+      ],
+      "id": "dfdd8d14-83ed-4375-95b9-1fc11e30b1dd",
+      "name": "Call 'Mensa Food UnNotify'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "5HSHkygzAyEGvYSr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/5HSHkygzAyEGvYSr",
+          "cachedResultName": "Mensa Food List"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "response_url": "={{ $json.body.response_url }}",
+            "channel_id": "={{ $json.body.channel_id }}",
+            "user_id": "={{ $json.body.user_id }}",
+            "webhook_url": "={{ $json.webhookUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "response_url",
+              "displayName": "response_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel_id",
+              "displayName": "channel_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "webhook_url",
+              "displayName": "webhook_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        256
+      ],
+      "id": "1df0c22a-fcd9-4c2e-a076-8a01a4b5494c",
+      "name": "Call 'Mensa Food List'"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -992,
+        128
+      ],
+      "id": "8b459901-f2f5-4195-a34b-d2abd8b63f56",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "SkB8HKbg__iwIlvaimO9l",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/SkB8HKbg__iwIlvaimO9l",
+          "cachedResultName": "Open Add Alert Dialog"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_id": "={{ $json.body.user_id }}",
+            "webhook_url": "={{ $json.webhookUrl }}",
+            "trigger_id": "={{ $json.body.trigger_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "webhook_url",
+              "displayName": "webhook_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "trigger_id",
+              "displayName": "trigger_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -752
+      ],
+      "id": "2eb684c7-a882-4414-bd32-bee182660353",
+      "name": "Call 'Open Add Alert Dialog'"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.context }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "f5ff61b3-baa5-451f-bce5-fb5b3056d980"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "is button"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "736360c7-7f98-4275-89d1-9759757c1fa0",
+                    "leftValue": "={{ $json.body.type }}",
+                    "rightValue": "dialog_submission",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "=is dialog"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -928,
+        -368
+      ],
+      "id": "a07d7fc4-6b62-4097-8149-b1fba3473391",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bbc98ae9-7a92-4c5b-964e-2c3a9713bd69",
+              "name": "params",
+              "value": "={{ [$json.body.submission.diet,$json.body.submission.keyword] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        -368
+      ],
+      "id": "6a5850c9-53e5-4e77-a766-b2e05433b5f9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "45861e5a-bfd5-439d-9519-7f56e5f31ab5",
+                    "leftValue": "={{ $json.body.context.action }}",
+                    "rightValue": "open_add_dialog",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "open_add_dialog"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.context.action }}",
+                    "rightValue": "menu_click",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "001868dd-f0c1-4330-a8e0-e21e85f3a7fe"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "show lunch menu"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bcdd2ef8-f913-4277-add5-ff5d9e59935c",
+                    "leftValue": "={{ $json.body.context.action }}",
+                    "rightValue": "list_click",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "list"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "97fbf4df-bf4f-40fe-8179-58c4d4458461",
+                    "leftValue": "={{ $json.body.context.action }}",
+                    "rightValue": "delete_alert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "unnotify"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        -640
+      ],
+      "id": "a4119c49-8d81-43b3-b8cb-dea4eec19ea4",
+      "name": "Switch (Buttons)"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e9aaa718-50c6-4e38-b496-13a173fab133",
+                    "leftValue": "={{ $json.body.callback_id }}",
+                    "rightValue": "submit_new_alert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "add alert"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        -352
+      ],
+      "id": "a20f9404-e138-4f34-91c7-d541eb53fe26",
+      "name": "Switch (Dialog)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06c638a2-30c8-497d-8d2e-7aa6305ede9d",
+              "name": "params",
+              "value": "={{ [$json.body.context.keyword] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        -416
+      ],
+      "id": "41f5aa32-a6da-4d9c-be5e-d295e3016539",
+      "name": "Edit Fields2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Create a data table",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a data table": {
+      "main": [
+        []
+      ]
+    },
+    "Build Command": {
+      "main": [
+        [
+          {
+            "node": "Split Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Command": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Call 'Mensa Food Show Menu'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food Help'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food Notify'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food UnNotify'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food List'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food Show Menu'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Switch (Buttons)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch (Dialog)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Call 'Mensa Food Notify'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch (Buttons)": {
+      "main": [
+        [
+          {
+            "node": "Call 'Open Add Alert Dialog'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food Show Menu'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food List'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Mensa Food Show Menu'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch (Dialog)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Call 'Mensa Food UnNotify'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "d1a13383-86d1-4a17-8b53-8fe615888cbc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33cb51054af562f7b4990b9fc18b714fda1d63cbdd96ac7492c7d73ce16109dc"
+  },
+  "id": "LTyxQimPalcY4uIm",
+  "tags": []
+}

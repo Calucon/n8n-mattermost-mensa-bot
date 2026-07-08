@@ -1,0 +1,207 @@
+{
+  "name": "Get Private Channel ID",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7b9ecf36-fc77-4e8b-9359-f8751245ca05",
+              "name": "bot_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        80
+      ],
+      "id": "30cd7ca6-c230-4b94-bae0-814de13443a1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "=https://hci2.uni-konstanz.de/api/v4/users/me",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mattermostApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -544,
+        80
+      ],
+      "id": "36031e25-53f8-4ee5-a2c8-ee83445e94e4",
+      "name": "Query Bot ID",
+      "credentials": {
+        "mattermostApi": {
+          "id": "7ezEmFfnqQg3Rx2Z",
+          "name": "Mattermost HCI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://hci2.uni-konstanz.de/api/v4/channels/direct",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mattermostApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ [$json.bot_id, $json.user_id] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        -16
+      ],
+      "id": "9cd68902-e527-4d3e-8f92-6ab6084d67f7",
+      "name": "Query Channel ID",
+      "credentials": {
+        "mattermostApi": {
+          "id": "7ezEmFfnqQg3Rx2Z",
+          "name": "Mattermost HCI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -112,
+        -16
+      ],
+      "id": "91d4af37-603e-4eeb-8335-acae3d2ec1e0",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "user_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -800,
+        -32
+      ],
+      "id": "af460d83-0d39-429f-a474-545b2d7f005c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2ef9bb6-4bdd-4f6a-8a33-efaceff36853",
+              "name": "channel_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "5138bb94-f6a7-44b7-a3dc-41e2af33fed8",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Query Bot ID": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Query Channel ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Query Bot ID",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Channel ID": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d9368dd8-3c0e-4d72-8154-3bf785e17e5e",
+  "meta": {
+    "instanceId": "33cb51054af562f7b4990b9fc18b714fda1d63cbdd96ac7492c7d73ce16109dc"
+  },
+  "id": "2qyAYjLNVWsdKxUWthKcl",
+  "tags": []
+}

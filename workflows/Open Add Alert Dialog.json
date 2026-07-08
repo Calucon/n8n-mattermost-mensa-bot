@@ -1,0 +1,81 @@
+{
+  "name": "Open Add Alert Dialog",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "user_id"
+            },
+            {
+              "name": "webhook_url"
+            },
+            {
+              "name": "trigger_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9d9179c3-2871-41af-82fc-e1dc16620de3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hci2.uni-konstanz.de/api/v4/actions/dialogs/open",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mattermostApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"trigger_id\": \"{{ $json.trigger_id }}\",\n  \"url\": \"{{ $json.webhook_url }}\", \n  \"dialog\": {\n    \"callback_id\": \"submit_new_alert\",\n    \"title\": \"Create New Lunch Alert\",\n    \"icon_url\": \"https://cdn-icons-png.flaticon.com/512/1828/1828819.png\",\n    \"elements\": [\n      {\n        \"display_name\": \"Keyword to Track\",\n        \"name\": \"keyword\",\n        \"type\": \"text\",\n        \"subtype\": \"text\",\n        \"placeholder\": \"e.g., Pizza, Schnitzel, Falafel\",\n        \"help_text\": \"Case-insensitive. You'll get notified when this word appears on the menu.\",\n        \"optional\": false\n      },\n      {\n        \"display_name\": \"Menu Preference\",\n        \"name\": \"diet\",\n        \"type\": \"select\",\n        \"options\": [\n          {\"text\": \"🥩 All Menus\", \"value\": \"all\"},\n          {\"text\": \"🥬 Vegetarian\", \"value\": \"veggi\"},\n          {\"text\": \"🌱 Vegan\", \"value\": \"vegan\"}\n        ],\n        \"default\": \"all\",\n        \"optional\": false\n      }\n    ],\n    \"submit_label\": \"Save Alert\",\n    \"notify_on_cancel\": false\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        240,
+        0
+      ],
+      "id": "dfe8eb33-853b-4874-8608-cfe389207d4f",
+      "name": "HTTP Request",
+      "credentials": {
+        "mattermostApi": {
+          "id": "7ezEmFfnqQg3Rx2Z",
+          "name": "Mattermost HCI"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "c2b2eb68-83cf-479b-8a6d-c8e9177c47af",
+  "meta": {
+    "instanceId": "33cb51054af562f7b4990b9fc18b714fda1d63cbdd96ac7492c7d73ce16109dc"
+  },
+  "id": "SkB8HKbg__iwIlvaimO9l",
+  "tags": []
+}
