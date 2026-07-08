@@ -1,0 +1,39 @@
+name: 🧹 Workflow Sanitization Check
+
+on:
+    pull_request:
+        branches: [main]
+        paths:
+            - "*.json"
+
+jobs:
+    verify-clean-json:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Clone the repository code into the runner
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            # 2. Set up a lightweight Python runtime
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.x"
+
+            # 3. Execute your sanitization script
+            - name: Run Sanitizer and Formatter
+              run: python clean.py
+
+            # 4. Check if git status is dirty. If clean.py changed anything, fail the runner.
+            - name: Verify No Pinned Data or Formatting Deviations
+              run: |
+                  if ! git diff --exit-code; then
+                    echo "========================================================================"
+                    echo "❌ ERROR: Unsanitized testing data or incorrect JSON formatting detected!"
+                    echo "========================================================================"
+                    echo "Please run 'python clean.py' locally on your branch to strip out pinData"
+                    echo "and fix your file indentation, then commit and push the updates."
+                    echo "========================================================================"
+                    exit 1
+                  fi
