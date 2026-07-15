@@ -11,6 +11,10 @@ on:
                 description: "Deploy a single workflow file only (e.g. 'Mensa Food.json'). Leave empty to deploy all."
                 type: string
                 default: ""
+            allow_create:
+                description: "Create workflows that exist locally but not live yet (matched by name), and auto-wire Execute Workflow references to their ids"
+                type: boolean
+                default: false
 
 jobs:
     deploy:
@@ -26,9 +30,36 @@ jobs:
                   python-version: "3.x"
 
             - name: Deploy workflows to n8n
+              id: deploy
+              continue-on-error: true
               env:
                   N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
                   N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
                   DRY_RUN: ${{ inputs.dry_run }}
                   ONLY_FILE: ${{ inputs.only_file }}
+                  ALLOW_CREATE: ${{ inputs.allow_create }}
               run: python deploy.py
+
+            # A create/rewire run edits workflows/*.json in place (new ids, rewired
+            # references) but never commits -- that's a deliberate manual step. Upload
+            # them here so a CI run's changes aren't just discarded with the runner.
+            - name: Check for local file changes
+              id: changes
+              if: always()
+              run: |
+                  if ! git diff --quiet -- workflows/; then
+                    echo "changed=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "changed=false" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Upload updated workflow files
+              if: always() && steps.changes.outputs.changed == 'true'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: updated-workflow-jsons
+                  path: workflows/
+
+            - name: Fail the job if deploy reported errors
+              if: steps.deploy.outcome == 'failure'
+              run: exit 1
