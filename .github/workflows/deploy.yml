@@ -1,0 +1,34 @@
+name: 🚀 Deploy Workflows to n8n
+
+on:
+    workflow_dispatch:
+        inputs:
+            dry_run:
+                description: "Preview changes without applying them"
+                type: boolean
+                default: true
+            only_file:
+                description: "Deploy a single workflow file only (e.g. 'Mensa Food.json'). Leave empty to deploy all."
+                type: string
+                default: ""
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.x"
+
+            - name: Deploy workflows to n8n
+              env:
+                  N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
+                  N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
+                  DRY_RUN: ${{ inputs.dry_run }}
+                  ONLY_FILE: ${{ inputs.only_file }}
+              run: python deploy.py

@@ -43,7 +43,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n    \"headers\": {\n        \"connection\": \"upgrade, keep-alive\",\n        \"host\": \"***REDACTED-SECRET***\",\n        \"x-real-ip\": \"***REDACTED-SECRET***\",\n        \"x-forwarded-for\": \"***REDACTED-SECRET***\",\n        \"x-forwarded-proto\": \"https\",\n        \"x-forwarded-host\": \"***REDACTED-SECRET***\",\n        \"x-forwarded-port\": \"443\",\n        \"content-length\": \"601\",\n        \"user-agent\": \"Mattermost-Bot/1.1\",\n        \"accept\": \"application/json\",\n        \"accept-encoding\": \"gzip, br\",\n        \"content-type\": \"application/x-www-form-urlencoded\",\n        \"cf-ray\": \"***REDACTED-SECRET***\",\n        \"authorization\": \"***REDACTED-SECRET***\",\n        \"cdn-loop\": \"cloudflare; loops=1\",\n        \"cf-connecting-ip\": \"***REDACTED-SECRET***\",\n        \"cf-ipcountry\": \"DE\",\n        \"cf-visitor\": \"{\\\"scheme\\\":\\\"https\\\"}\"\n    },\n    \"params\": {},\n    \"query\": {},\n    \"body\": {\n        \"channel_id\": \"***REDACTED-SECRET***\",\n        \"channel_name\": \"***REDACTED-SECRET***\",\n        \"command\": \"/lunch\",\n        \"response_url\": \"***REDACTED-SECRET***\",\n        \"team_domain\": \"hci\",\n        \"team_id\": \"***REDACTED-SECRET***\",\n        \"text\": \"notify \\\"french fries\\\"\",\n        \"token\": \"***REDACTED-SECRET***\",\n        \"trigger_id\": \"***REDACTED-SECRET***\",\n        \"user_id\": \"***REDACTED-SECRET***\",\n        \"user_name\": \"***REDACTED-SECRET***\"\n    },\n    \"webhookUrl\": \"***REDACTED-SECRET***\",\n    \"executionMode\": \"production\"\n}",
+        "jsonOutput": "{\n    \"headers\": {\n        \"connection\": \"upgrade, keep-alive\",\n        \"host\": \"n8n.example.com\",\n        \"x-real-ip\": \"2001:db8::1\",\n        \"x-forwarded-for\": \"203.0.113.1, 2001:db8::1\",\n        \"x-forwarded-proto\": \"https\",\n        \"x-forwarded-host\": \"n8n.example.com\",\n        \"x-forwarded-port\": \"443\",\n        \"content-length\": \"601\",\n        \"user-agent\": \"Mattermost-Bot/1.1\",\n        \"accept\": \"application/json\",\n        \"accept-encoding\": \"gzip, br\",\n        \"content-type\": \"application/x-www-form-urlencoded\",\n        \"cf-ray\": \"0000000000000000-XXX\",\n        \"authorization\": \"Token EXAMPLE00000000000000000\",\n        \"cdn-loop\": \"cloudflare; loops=1\",\n        \"cf-connecting-ip\": \"203.0.113.1\",\n        \"cf-ipcountry\": \"DE\",\n        \"cf-visitor\": \"{\\\"scheme\\\":\\\"https\\\"}\"\n    },\n    \"params\": {},\n    \"query\": {},\n    \"body\": {\n        \"channel_id\": \"example0channelid00000000\",\n        \"channel_name\": \"exampleuser__exampleuser\",\n        \"command\": \"/lunch\",\n        \"response_url\": \"https://mattermost.example.com/hooks/commands/example0hookid000000000\",\n        \"team_domain\": \"example-team\",\n        \"team_id\": \"example0teamid000000000000\",\n        \"text\": \"notify \\\"french fries\\\"\",\n        \"token\": \"EXAMPLE00000000000000000\",\n        \"trigger_id\": \"EXAMPLE_TRIGGER_ID_BASE64_PLACEHOLDER==\",\n        \"user_id\": \"example0userid00000000000\",\n        \"user_name\": \"example_user\"\n    },\n    \"webhookUrl\": \"https://n8n.example.com/webhook/00000000-0000-0000-0000-000000000000\",\n    \"executionMode\": \"production\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
@@ -1015,56 +1015,7 @@
       "name": "Call 'Mensa Food Show Menu'1"
     }
   ],
-  "pinData": {
-    "Webhook": [
-      {
-        "json": {
-          "headers": {
-            "connection": "upgrade, keep-alive",
-            "host": "***REDACTED-SECRET***",
-            "x-real-ip": "***REDACTED-SECRET***",
-            "x-forwarded-for": "***REDACTED-SECRET***",
-            "x-forwarded-proto": "https",
-            "x-forwarded-host": "***REDACTED-SECRET***",
-            "x-forwarded-port": "443",
-            "content-length": "573",
-            "user-agent": "Mattermost-Bot/1.1",
-            "accept-encoding": "gzip, br",
-            "content-type": "application/json",
-            "cf-ray": "***REDACTED-SECRET***",
-            "accept": "application/json",
-            "cdn-loop": "cloudflare; loops=1",
-            "cf-connecting-ip": "***REDACTED-SECRET***",
-            "cf-ipcountry": "DE",
-            "cf-visitor": "{\"scheme\":\"https\"}"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "user_id": "***REDACTED-SECRET***",
-            "user_name": "***REDACTED-SECRET***",
-            "channel_id": "***REDACTED-SECRET***",
-            "channel_name": "***REDACTED-SECRET***",
-            "team_id": "",
-            "team_domain": "",
-            "post_id": "***REDACTED-SECRET***",
-            "trigger_id": "***REDACTED-SECRET***",
-            "type": "button",
-            "data_source": "",
-            "context": {
-              "action": "delete_alert",
-              "keyword": "test"
-            }
-          },
-          "webhookUrl": "***REDACTED-SECRET***",
-          "executionMode": "production"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "Webhook": {
       "main": [

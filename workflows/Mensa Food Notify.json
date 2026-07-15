@@ -91,7 +91,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.text = \"❌ **Missing required parameters**\\n\\n\" +\n                   \"**Usage:** `/lunch notify [diet] [keyword]`\\n\" +\n                   \"* `[diet]`: Must be exactly `all`, `veggie`, or `vegan`\\n\" +\n                   \"* `[keyword]`: The food name you want to track (use quotes for multiple words)\\n\\n\" +\n                   \"💡 *Example:* `/lunch notify vegan \\\"thai curry\\\"` or `/lunch notify all pizza`\";\n}\n\nreturn $input.all();"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.text = \"❌ **Missing required parameters**\\n\\n\" +\n                   \"**Usage:** `/lunch sub [diet] [keyword]`\\n\" +\n                   \"* `[diet]`: Must be exactly `all`, `veggie`, or `vegan`\\n\" +\n                   \"* `[keyword]`: The food name you want to track (use quotes for multiple words)\\n\\n\" +\n                   \"💡 *Example:* `/lunch sub vegan \\\"thai curry\\\"` or `/lunch sub all pizza`\";\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

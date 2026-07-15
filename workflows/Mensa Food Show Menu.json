@@ -508,7 +508,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  if(!item.json.alerts){\n    item.json.alerts = [];\n  }\n\n  for (const notify of item.json.notifications) {\n    // not in title\n    if(!item.json.title.includes(notify.query)) continue;\n\n    // check diet\n    if(notify.diet == 'vegan' && !item.json.isVegan) continue;\n    if(notify.diet == 'veggie' && !item.json.isVegetarian) continue;\n    \n    item.json.alerts.push(\"@\" + notify.username + \" \" + notify.query);\n  }\n}\n\nreturn $input.all();"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfunction escapeMarkdown(str) {\n  return str.replace(/[\\\\`*_{}\\[\\]()#+\\-.!]/g, '\\\\$&').replace(/@/g, '@\\u200b');\n}\n\nfor (const item of $input.all()) {\n  if(!item.json.alerts){\n    item.json.alerts = [];\n  }\n\n  for (const notify of item.json.notifications) {\n    // not in title (queries are stored lowercase, titles keep original casing)\n    if(!item.json.title.toLowerCase().includes(notify.query)) continue;\n\n    // check diet\n    if(notify.diet == 'vegan' && !item.json.isVegan) continue;\n    if(notify.diet == 'veggie' && !item.json.isVegetarian) continue;\n    \n    item.json.alerts.push(\"@\" + notify.username + \" \" + escapeMarkdown(notify.query));\n  }\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

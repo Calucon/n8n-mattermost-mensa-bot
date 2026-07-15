@@ -92,6 +92,44 @@ Because dependency logic builds outward, files should be imported into your targ
 
 ---
 
+## 🔄 Deploying Updates to a Live Instance
+
+Once your workflows are imported (see above) and their IDs are baked into the JSON files, subsequent edits can be pushed straight to your running n8n instance via its REST API instead of re-importing by hand.
+
+### 1. Create a Scoped API Key
+
+In your n8n instance, go to **Settings → API Keys → Create an API Key** and grant only:
+
+* `workflow:read` — lets the deploy script fetch the live version of a workflow before updating, to detect whether anything actually changed
+* `workflow:update` — lets it push the new `nodes`/`connections`/`settings`
+
+No `workflow:create`, `workflow:delete`, `credential:*`, or `user:*` scopes are needed — the script only ever targets workflow IDs that already exist (the `id` field already present in each exported JSON file), never lists, creates, or deletes workflows. (Older n8n versions without granular API key scopes only offer a single full-access key — the same two capabilities are all that's used.)
+
+### 2. Add Repository Secrets
+
+Under **Settings → Secrets and variables → Actions**, add:
+
+* `N8N_BASE_URL` — e.g. `https://n8n.yourdomain.tld`
+* `N8N_API_KEY` — the key created above
+
+### 3. Run the Deploy Workflow
+
+The **🚀 Deploy Workflows to n8n** GitHub Action (`.github/workflows/deploy.yml`) is manual-only (`workflow_dispatch`) — nothing is ever pushed automatically on merge. From the **Actions** tab:
+
+1. Run it once with **dry_run: true** (the default) to preview which workflows differ from what's currently live, without changing anything.
+2. Review the output, then run it again with **dry_run: false** to actually apply the changes.
+3. Optionally set **only_file** to a single filename (e.g. `Mensa Food.json`) to deploy just one workflow instead of all of them.
+
+Locally, the same script can be run directly:
+
+```bash
+N8N_BASE_URL="https://n8n.yourdomain.tld" N8N_API_KEY="..." DRY_RUN=true python3 deploy.py
+```
+
+n8n keeps its own version history per workflow (visible in the editor), so a bad deploy can be rolled back from there if needed.
+
+---
+
 ## 🛠️ Modifying & Extending the Code
 
 * **Seezeit XML Parsing**: The **Mensa Food Show Menu.json** workflow queries an XML endpoint managed by `max-manager.de`. It uses an evaluation mapping block to parse custom dietary codes (`24` = vegan, `51` = vegetarian, etc.). If Seezeit updates their nutritional tag identifiers, you must modify the structural logic inside the `Map Icons` JavaScript node.

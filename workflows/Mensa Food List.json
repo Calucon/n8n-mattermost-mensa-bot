@@ -65,7 +65,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const notifications = item.json.data.filter(it => it.diet && it.query);\n  const dietOrder = { \"all\": 1, \"veggi\": 2, \"vegan\": 3 };\n  notifications.sort((a, b) => (dietOrder[a.diet] || 99) - (dietOrder[b.diet] || 99));\n  \n  item.json.data = notifications;\n  item.json.text = \"🔔 **Active Lunch Alerts**\";\n}\n\nreturn $input.all();"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const notifications = item.json.data.filter(it => it.diet && it.query);\n  const dietOrder = { \"all\": 1, \"veggie\": 2, \"vegan\": 3 };\n  notifications.sort((a, b) => (dietOrder[a.diet] || 99) - (dietOrder[b.diet] || 99));\n  \n  item.json.data = notifications;\n  item.json.text = \"🔔 **Active Lunch Alerts**\";\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

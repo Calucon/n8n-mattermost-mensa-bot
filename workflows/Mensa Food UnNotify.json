@@ -91,7 +91,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.text = \"❌ **Missing required parameters**\\n\\n\" +\n                   \"**Usage:** `/lunch unnotify [keyword]`\\n\" +\n                   \"* `[keyword]`: The food name you want to untrack (use quotes for multiple words)\\n\\n\" +\n                   \"💡 *Example:* `/lunch unnotify \\\"thai curry\\\"` or `/lunch unnotify pizza`\";\n}\n\nreturn $input.all();"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.text = \"❌ **Missing required parameters**\\n\\n\" +\n                   \"**Usage:** `/lunch unsub [keyword]`\\n\" +\n                   \"* `[keyword]`: The food name you want to untrack (use quotes for multiple words)\\n\\n\" +\n                   \"💡 *Example:* `/lunch unsub \\\"thai curry\\\"` or `/lunch unsub pizza`\";\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -143,7 +143,7 @@
                   {
                     "id": "818f56ed-9164-4f48-8f9b-ec75198f6001",
                     "leftValue": "={{ $json.params }}",
-                    "rightValue": "/^(all|veggi|vegan)$/i",
+                    "rightValue": "/^(all|veggie|vegan)$/i",
                     "operator": {
                       "type": "array",
                       "operation": "notEmpty",
@@ -226,7 +226,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const notifications = item.json.data.filter(it => it.diet && it.query);\n  const dietOrder = { \"all\": 1, \"veggi\": 2, \"vegan\": 3 };\n  notifications.sort((a, b) => (dietOrder[a.diet] || 99) - (dietOrder[b.diet] || 99));\n  \n  item.json.text = \"🗑️ **Alert deleted**\\n\\n\" +\n                   notifications.map(it => \"* Keyword: \" + it.query + \" - Diet: \" + it.diet).join(\"\\n\");\n}\n\nreturn $input.all();"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const notifications = item.json.data.filter(it => it.diet && it.query);\n  const dietOrder = { \"all\": 1, \"veggie\": 2, \"vegan\": 3 };\n  notifications.sort((a, b) => (dietOrder[a.diet] || 99) - (dietOrder[b.diet] || 99));\n  \n  item.json.text = \"🗑️ **Alert deleted**\\n\\n\" +\n                   notifications.map(it => \"* Keyword: \" + it.query + \" - Diet: \" + it.diet).join(\"\\n\");\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

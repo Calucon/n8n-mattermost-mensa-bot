@@ -3,9 +3,12 @@ import os
 import json
 import sys
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 def sanitize_workflows(directory: str = "."):
     """
-    Scans a directory for n8n JSON workflow files (.json).
+    Recursively scans a directory for n8n JSON workflow files (.json).
 
     This utility performs two main actions:
     1.  Strips sensitive test data (`pinData`): Removes cached execution payloads which may
@@ -18,42 +21,46 @@ def sanitize_workflows(directory: str = "."):
 
     print(f"🔍 Scanning '{directory}' for n8n workflow files...")
 
-    for filename in os.listdir(directory):
-        if not filename.endswith(".json"):
-            continue
+    for root, dirs, files in os.walk(directory):
+        # Skip hidden dirs (e.g. .git) and Python cache dirs
+        dirs[:] = [d for d in dirs if not d.startswith(".") and d != "__pycache__"]
 
-        filepath = os.path.join(directory, filename)
-        
-        content = None
-        try:
-            with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read()
-                workflow = json.loads(content)
-        except (json.JSONDecodeError, PermissionError, UnicodeDecodeError) as e:
-            # Skip files that aren't valid JSON or can't be read
-            print(f"⚠️  Skipping non-workflow file: {filename} ({type(e).__name__})")
-            continue
-        except FileNotFoundError:
-            # Edge case: file was deleted during the scan
-            continue
+        for filename in files:
+            if not filename.endswith(".json"):
+                continue
 
-        # Basic validation to check if the JSON is actually an n8n workflow export
-        if isinstance(workflow, dict) and ("nodes" in workflow or "connections" in workflow):
+            filepath = os.path.join(root, filename)
+
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    workflow = json.loads(f.read())
+            except (json.JSONDecodeError, PermissionError, UnicodeDecodeError) as e:
+                # Skip files that aren't valid JSON or can't be read
+                print(f"⚠️  Skipping non-workflow file: {filepath} ({type(e).__name__})")
+                continue
+            except FileNotFoundError:
+                # Edge case: file was deleted during the scan
+                continue
+
+            # Basic validation to check if the JSON is actually an n8n workflow export
+            if not (isinstance(workflow, dict) and ("nodes" in workflow or "connections" in workflow)):
+                continue
+
             has_pin_data = "pinData" in workflow and bool(workflow["pinData"])
-            
+
             # Force clear the pinData structure
             workflow["pinData"] = {}
-            
+
             # Save the file with standard 2-space indentation
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(workflow, f, indent=2, ensure_ascii=False)
-                f.write("\n") # Add a trailing newline to satisfy standard linting rules
-            
+                f.write("\n")  # Add a trailing newline to satisfy standard linting rules
+
             if has_pin_data:
-                print(f"🧹 Cleaned pinned metadata from: {filename}")
+                print(f"🧹 Cleaned pinned metadata from: {filepath}")
                 cleaned_count += 1
             else:
-                print(f"✨ Formatted and verified clean: {filename}")
+                print(f"✨ Formatted and verified clean: {filepath}")
                 formatted_count += 1
 
     print("\n🏁 Sanitization Summary:")
